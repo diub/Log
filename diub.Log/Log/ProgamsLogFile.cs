@@ -13,7 +13,7 @@ public partial class ProgramsLogFile {
 
 	readonly private System.Threading.Semaphore logfile_semaphore;
 
-	
+
 	private string path;
 	private string path_filename;
 	readonly private string app_or_service_name;
@@ -138,13 +138,13 @@ public partial class ProgramsLogFile {
 	/// <param name="WriteIt">Logischer Ausdruck: True für die Ausgabe</param>
 	/// <param name="Module">Angabe des Moduls, das die meldung ausgibt</param>
 	/// <param name="Text">Text der Meldung</param>
-	public void Write (MsgLogLevel MsgLogLevel, bool WriteIt, string Module, string Text) {
+	public void Write (MsgLogLevel MsgLogLevel, bool WriteIt, string Module, params string [] Text) {
 		if (WriteIt)
 			Write (MsgLogLevel, Module, Text);
 	}
 
-	public void Write (int MsgLogLevel, string Module, string Text) {
-		Write ((MsgLogLevel) MsgLogLevel, Module, Text);
+	public void Write (int MsgLogLevel, string Module, params string [] Infos) {
+		Write ((MsgLogLevel) MsgLogLevel, Module, Infos);
 	}
 
 	/// <summary>
@@ -152,8 +152,8 @@ public partial class ProgramsLogFile {
 	/// </summary>
 	/// <param name="MsgLogLevel">Stufe der Meldung</param>
 	/// <param name="Module">Angabe des Moduls, das die meldung ausgibt</param>
-	/// <param name="Text">Text der Meldung</param>
-	public void Write (MsgLogLevel MsgLogLevel, string Module, string Text) {
+	/// <param name="Infos">Text der Meldung</param>
+	public void Write (MsgLogLevel MsgLogLevel, string Module, params string [] Infos) {
 		DateTime dt;
 
 		if (stream == null)
@@ -165,7 +165,7 @@ public partial class ProgramsLogFile {
 		tb_lifetime.Append (string.Join ("\t", Process.GetCurrentProcess ().Id.ToString (), dt.ToString ("yyyy-MM-dd HH:mm:ss"), MsgLogLevel.ToString (), Module));
 		tb_lifetime.Append ("\t");
 		tb_lifetime.Append ("\"");
-		tb_lifetime.Append (Text);
+		tb_lifetime.Append (string.Join (" ", Infos));
 		tb_lifetime.Append ("\"");
 		stream.WriteLine (tb_lifetime.ToString ());
 		stream.Flush ();
@@ -175,8 +175,10 @@ public partial class ProgramsLogFile {
 
 	public void WriteExeption (string Module, Exception Exception) {
 		Exception e = Exception;
+		StackTrace trace = new System.Diagnostics.StackTrace (e, true);
 
 		Write (MsgLogLevel.Error, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", "");
+		Write (MsgLogLevel.Error, "Line: " + trace.GetFrame (0).GetFileLineNumber ());
 		Write (MsgLogLevel.Error, "Exception in Module: ", Module);
 		Write (MsgLogLevel.Error, "Application:", Forms.Application.ProductName + " Version " + Forms.Application.ProductVersion);
 		Write (MsgLogLevel.Error, "Unhandled Execption", e.Message);

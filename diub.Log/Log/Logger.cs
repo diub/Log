@@ -16,19 +16,46 @@ static public class Logger {
 		}
 	}
 
+	//
+	//
+	//
+
+	static public void Write (MsgLogLevel LogLevel, string Module, params object [] Infos) {
+		int i;
+		string [] stra;
+
+		stra = new string [Infos.Length];
+		for (i = 0; i < Infos.Length; i++)
+			stra [i] = Infos [i].ToString ();
+		Write (LogLevel, Module, stra);
+	}
+
 	/// <summary>
 	/// Schreibt die Meldung in das Logfile, wenn: LogLevel <= UserLogLevel (Property)
 	/// </summary>
 	/// <param name="LogLevel"></param>
 	/// <param name="Module"></param>
-	/// <param name="Text"></param>
-	static public void Write (MsgLogLevel LogLevel, string Module, string Text) {
+	/// <param name="Infos"></param>
+	static public void Write (MsgLogLevel LogLevel, string Module, params string [] Infos) {
+#if !DEBUG
 		if ((int) UserLogLevel < (int) LogLevel)
 			return;
+#endif
 		if (logfile == null)
 			logfile = new ProgramsLogFile (AppOrServiceName);
-		logfile.Write (LogLevel, Module, Text);
+		logfile.Write (LogLevel, Module, Infos);
 	}
+
+	static public void Write (MsgLogLevel LogLevel, UserLogLevel UserLogLevelHoE, string Module, params object [] Infos) {
+		int i;
+		string [] stra;
+
+		stra = new string [Infos.Length];
+		for (i = 0; i < Infos.Length; i++)
+			stra [i] = Infos [i].ToString ();
+		logfile.Write (LogLevel, Logger.UserLogLevel >= UserLogLevelHoE, Module, stra);
+	}
+
 
 	/// <summary>
 	/// Schreibt die Meldung in das Logfile, wenn: LogLevel <= UserLogLevel (Parameter)
@@ -36,9 +63,9 @@ static public class Logger {
 	/// <param name="LogLevel"></param>
 	/// <param name="UserLogLevelHoE"></param>
 	/// <param name="Module"></param>
-	/// <param name="Text"></param>
-	static public void Write (MsgLogLevel LogLevel, UserLogLevel UserLogLevelHoE, string Module, string Text) {
-		logfile.Write (LogLevel, Logger.UserLogLevel >= UserLogLevelHoE, Module, Text);
+	/// <param name="Infos"></param>
+	static public void Write (MsgLogLevel LogLevel, UserLogLevel UserLogLevelHoE, string Module, params string [] Infos) {
+		logfile.Write (LogLevel, Logger.UserLogLevel >= UserLogLevelHoE, Module, Infos);
 	}
 
 	/// <summary>
@@ -47,11 +74,11 @@ static public class Logger {
 	/// <param name="LogLevel"></param>
 	/// <param name="WriteIt"></param>
 	/// <param name="Module"></param>
-	/// <param name="Text"></param>
-	static public void Write (MsgLogLevel LogLevel, bool WriteIt, string Module, string Text) {
+	/// <param name="Infos"></param>
+	static public void Write (MsgLogLevel LogLevel, bool WriteIt, string Module, params string [] Infos) {
 		if (logfile == null)
 			logfile = new ProgramsLogFile (AppOrServiceName);
-		logfile.Write (LogLevel, WriteIt, Module, Text);
+		logfile.Write (LogLevel, WriteIt, Module, Infos);
 	}
 
 	/// <summary>
@@ -95,8 +122,17 @@ static public class Logger {
 	// Properties
 	//
 
+	static private UserLogLevel userloglevel = UserLogLevel.Verbose;
 	[DefaultValue (UserLogLevel.Verbose)]
-	static public UserLogLevel UserLogLevel { get; set; } = UserLogLevel.Verbose;
+	static public UserLogLevel UserLogLevel {
+		get {
+			return userloglevel;
+		}
+		set {
+			userloglevel = value;
+			Logger.Write (MsgLogLevel.System, nameof (Logger), "User-Log level changed to: ", userloglevel);
+		}
+	} 
 
 	static public string AppOrServiceName {
 		set; get;

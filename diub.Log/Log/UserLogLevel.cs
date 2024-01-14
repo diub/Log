@@ -9,10 +9,22 @@
 /// </summary>
 public enum UserLogLevel {
 
-	Error = 3,      // Meldungen die unbedingt ausgegeben werden müsssen, Fehler im Programmablauf
-	Warning = 4,    // Fehler durch falsche Daten, zum Beispiel: zu viele Login, falsche Passwörter usw.
-	Verbose = 5,    // Mehr Detail-Informationen
-	Debug = 10      // Alles was es gibt, zB FogMirror: jede erfasste Datei, Vergleichsergebnisse ...
+	/// <summary>
+	/// Fehler im Programmablauf, Meldungen die unbedingt ausgegeben werden müsssen
+	/// </summary>
+	Error = MsgLogResult.Error,
+	/// <summary>
+	/// Fehler durch falsche Daten, zum Beispiel: zu viele Login, falsche Passwörter usw.
+	/// </summary>
+	Warning = MsgLogResult.Warning,
+	/// <summary>
+	/// Nur im Debug-Mode. <para></para>Wichtig! <see cref="Verbose"/> ist noch ausführlicher!
+	/// </summary>
+	Debug = MsgLogResult.Debug,
+	/// <summary>
+	/// Details für die Ablaufverfolgung
+	/// </summary>
+	Verbose = MsgLogResult.Verbose,
 
 }   // class
 
